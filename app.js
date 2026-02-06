@@ -123,3 +123,4 @@ async function addImage() {
 
   reader.readAsDataURL(file);
 }
+

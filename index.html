@@ -53,17 +53,11 @@ body {
   color: #cfa1bd;
 }
 
-/* Grid layout */
+/* Grid layout (single column) */
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 24px;
-}
-
-@media (max-width: 800px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Panels */
@@ -105,7 +99,7 @@ body {
   box-shadow: 0 0 0 4px rgba(255, 77, 166, 0.35);
 }
 
-/* Token info */
+/* Note */
 .note {
   background: #1f0f18;
   border-left: 5px solid #ff4da6;
@@ -113,7 +107,44 @@ body {
   border-radius: 14px;
   font-size: 13px;
   color: #ff9ad5;
-  margin: 18px 0;
+  margin-bottom: 18px;
+}
+
+/* Filename */
+.filename {
+  width: 100%;
+  background: #0b0b11;
+  border: 2px solid #ff4da6;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff9ad5;
+  margin-bottom: 14px;
+  outline: none;
+}
+
+/* Editor */
+.editor {
+  width: 100%;
+  min-height: 260px;
+  resize: none;
+  padding: 16px;
+  border-radius: 18px;
+  background: #0b0b11;
+  border: 2px solid #ff4da6;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: 0.25s;
+}
+
+.editor::placeholder {
+  color: #9a6a88;
+}
+
+.editor:focus {
+  box-shadow: 0 0 0 4px rgba(255, 77, 166, 0.35);
 }
 
 /* Buttons */
@@ -164,28 +195,11 @@ button {
 
 .status span {
   display: block;
-  width: 35%;
+  width: 0%;
   height: 100%;
   background: linear-gradient(90deg, #ff4da6, #ff1f8f);
   box-shadow: 0 0 14px rgba(255, 77, 166, 0.9);
-}
-
-/* Preview panel */
-.preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  border-radius: 18px;
-  background: repeating-linear-gradient(
-    45deg,
-    #1b1b28,
-    #1b1b28 10px,
-    #161620 10px,
-    #161620 20px
-  );
-  color: #ff7abf;
-  font-size: 14px;
+  transition: width 0.6s ease;
 }
 </style>
 </head>
@@ -195,46 +209,73 @@ button {
 <div class="app">
   <div class="header">
     <h1>☁️ Cloud Notepad (GitHub)</h1>
-    <p>GitHub-powered cloud image storage</p>
+    <p>GitHub-powered cloud notes</p>
   </div>
 
   <div class="grid">
-    <!-- Auth Panel -->
+    <!-- Auth + Notes Panel -->
     <div class="panel">
       <h3>🔐 GitHub Authentication</h3>
 
       <div class="input">
-        <input type="text" placeholder="GitHub Username">
+        <input id="username" type="text" placeholder="GitHub Username">
       </div>
 
       <div class="input">
-        <input type="text" placeholder="Repository Name">
+        <input id="repo" type="text" placeholder="Repository Name">
       </div>
 
       <div class="input">
-        <input type="password" placeholder="Personal Access Token">
+        <input id="token" type="text" placeholder="Personal Access Token">
       </div>
 
       <div class="note">
         Token requires <b>repo</b> and <b>read:user</b> scopes.
       </div>
 
+      <h3>📝 Cloud Notes</h3>
+
+      <input class="filename" value="notes.txt" disabled>
+
+      <textarea class="editor" placeholder="Write your notes here..." disabled></textarea>
+
       <div class="actions">
-        <button class="primary">Connect</button>
-        <button class="secondary">Disconnect</button>
+        <button class="primary" id="connectBtn">Connect</button>
+        <button class="secondary" id="disconnectBtn">Disconnect</button>
       </div>
 
       <div class="status">
-        <span></span>
+        <span id="statusBar"></span>
       </div>
-    </div>
-
-    <!-- Preview Panel -->
-    <div class="panel preview">
-      Image preview & cloud notes will appear here 💕
     </div>
   </div>
 </div>
+
+<script>
+const connectBtn = document.getElementById("connectBtn");
+const disconnectBtn = document.getElementById("disconnectBtn");
+const editor = document.querySelector(".editor");
+const filename = document.querySelector(".filename");
+const statusBar = document.getElementById("statusBar");
+
+let connected = false;
+
+connectBtn.addEventListener("click", () => {
+  connected = true;
+  editor.disabled = false;
+  filename.disabled = false;
+  statusBar.style.width = "100%";
+  editor.focus();
+});
+
+disconnectBtn.addEventListener("click", () => {
+  connected = false;
+  editor.disabled = true;
+  filename.disabled = true;
+  editor.value = "";
+  statusBar.style.width = "0%";
+});
+</script>
 
 </body>
 </html>

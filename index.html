@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cloud Notepad (GitHub)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, #ff4da633, transparent 40%),
+    linear-gradient(135deg, #09090d, #140014);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* App container */
+.app {
+  width: 100%;
+  max-width: 860px;
+  background: #0f0f16;
+  border-radius: 28px;
+  padding: 40px;
+  border: 1px solid rgba(255, 77, 166, 0.25);
+  box-shadow: 0 40px 80px rgba(255, 77, 166, 0.25);
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 36px;
+  margin: 0;
+  color: #ff4da6;
+  text-shadow: 0 0 14px rgba(255, 77, 166, 0.6);
+}
+
+.header p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #cfa1bd;
+}
+
+/* Grid layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panels */
+.panel {
+  background: #151520;
+  border-radius: 22px;
+  padding: 26px;
+  border: 1px solid rgba(255, 77, 166, 0.25);
+}
+
+/* Panel titles */
+.panel h3 {
+  margin: 0 0 14px 0;
+  font-size: 18px;
+  color: #ff7abf;
+}
+
+/* Inputs */
+.input {
+  margin-bottom: 14px;
+}
+
+.input input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #0b0b11;
+  border: 2px solid #ff4da6;
+  color: #fff;
+  outline: none;
+  transition: 0.25s;
+}
+
+.input input::placeholder {
+  color: #9a6a88;
+}
+
+.input input:focus {
+  box-shadow: 0 0 0 4px rgba(255, 77, 166, 0.35);
+}
+
+/* Token info */
+.note {
+  background: #1f0f18;
+  border-left: 5px solid #ff4da6;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  color: #ff9ad5;
+  margin: 18px 0;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 14px;
+}
+
+button {
+  flex: 1;
+  padding: 14px;
+  border-radius: 18px;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.primary {
+  background: linear-gradient(135deg, #ff4da6, #ff1f8f);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(255, 77, 166, 0.45);
+}
+
+.primary:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.secondary {
+  background: transparent;
+  color: #ff7abf;
+  border: 1px solid #ff4da6;
+}
+
+.secondary:hover {
+  background: #2a1422;
+}
+
+/* Status */
+.status {
+  margin-top: 20px;
+  height: 10px;
+  background: #2a1422;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.status span {
+  display: block;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff4da6, #ff1f8f);
+  box-shadow: 0 0 14px rgba(255, 77, 166, 0.9);
+}
+
+/* Preview panel */
+.preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-radius: 18px;
+  background: repeating-linear-gradient(
+    45deg,
+    #1b1b28,
+    #1b1b28 10px,
+    #161620 10px,
+    #161620 20px
+  );
+  color: #ff7abf;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>☁️ Cloud Notepad (GitHub)</h1>
+    <p>GitHub-powered cloud image storage</p>
+  </div>
+
+  <div class="grid">
+    <!-- Auth Panel -->
+    <div class="panel">
+      <h3>🔐 GitHub Authentication</h3>
+
+      <div class="input">
+        <input type="text" placeholder="GitHub Username">
+      </div>
+
+      <div class="input">
+        <input type="text" placeholder="Repository Name">
+      </div>
+
+      <div class="input">
+        <input type="password" placeholder="Personal Access Token">
+      </div>
+
+      <div class="note">
+        Token requires <b>repo</b> and <b>read:user</b> scopes.
+      </div>
+
+      <div class="actions">
+        <button class="primary">Connect</button>
+        <button class="secondary">Disconnect</button>
+      </div>
+
+      <div class="status">
+        <span></span>
+      </div>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="panel preview">
+      Image preview & cloud notes will appear here 💕
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

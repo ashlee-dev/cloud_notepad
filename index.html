@@ -2,320 +2,318 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cloud Image Notepad - Token Visible</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cloud Image Notepad</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  :root {
+    --bg: #0b0b14;
+    --panel: rgba(20,20,37,0.85);
+    --accent: #ff4fa3;
+    --muted: #9aa0b3;
+  }
 
-:root {
-  --bg-dark: #0a0a1f;
-  --bg-gradient-start: #1b1b38;
-  --bg-gradient-end: #0a0a1f;
-  --panel-bg: rgba(26, 26, 51, 0.9);
-  --accent: #ff4fa3;
-  --accent-light: #ff7dc2;
-  --text-light: #e0e0f0;
-  --text-muted: #9aa0b3;
-  --error-color: #ff6b6b;
-  --success-color: #32d48a;
-}
+  * { box-sizing: border-box; }
 
-* { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(120deg, #1a1a33, #0b0b14);
+  }
 
-html, body {
-  margin: 0; padding: 0;
-  height: 100%;
-  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-  font-family: 'Inter', sans-serif;
-  color: var(--text-light);
-  display: flex; justify-content: center; align-items: center;
-}
+  .container {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    max-width: 1200px;
+    height: 80vh;
+    background: var(--panel);
+    border-radius: 20px;
+    padding: 24px;
+    gap: 20px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  background: var(--panel-bg);
-  border-radius: 20px;
-  padding: 28px 32px;
-  width: 95%;
-  max-width: 1200px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3), 0 0 60px var(--accent-light);
-}
+  .sidebar, .main {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 
-h2 {
-  text-align: center;
-  color: var(--accent-light);
-  margin-bottom: 16px;
-  font-weight: 600;
-}
+  .sidebar {
+    width: 300px;
+  }
 
-.inputs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
+  h2 {
+    margin: 0;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
 
-.inputs input {
-  flex: 1 1 200px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1.5px solid #262650;
-  background: #1f1f3a;
-  color: var(--text-light);
-  outline: none;
-}
+  input, button {
+    font-family: inherit;
+  }
 
-.inputs input:focus { border-color: var(--accent); }
+  input {
+    background: #0f1020;
+    border: 1px solid #262650;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    outline: none;
+    width: 100%;
+  }
 
-.buttons {
-  display: flex;
-  gap: 12px;
-  margin: 16px 0;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+  input:focus {
+    border-color: var(--accent);
+  }
 
-.buttons button {
-  padding: 12px 24px;
-  font-weight: 600;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
-  color: black;
-  transition: 0.3s;
-}
+  button {
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), #ff7dc2);
+    color: black;
+    transition: 0.3s;
+  }
 
-.buttons button.secondary {
-  background: #262650;
-  color: var(--text-light);
-}
+  button:disabled {
+    background: #444466;
+    color: #aaaabb;
+    cursor: not-allowed;
+  }
 
-.buttons button:disabled { background: #444466; cursor: not-allowed; }
+  .images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+    background: #141425;
+    padding: 14px;
+    border-radius: 16px;
+  }
 
-.main {
-  display: flex;
-  gap: 24px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+  .images img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
 
-.image-list-panel, .preview-panel {
-  background: var(--panel-bg);
-  padding: 16px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 280px;
-  max-height: 600px;
-  overflow-y: auto;
-}
+  .images img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
 
-.image-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
+  .preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #141425;
+    padding: 14px;
+    border-radius: 16px;
+    width: 400px;
+  }
 
-.image-list img {
-  max-width: 90px; max-height: 90px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
+  .preview img {
+    width: 100%;
+    max-height: 300px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: black;
+  }
 
-.image-list img:hover, .image-list img.selected {
-  transform: scale(1.05);
-  border-color: var(--accent);
-}
+  .status {
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    min-height: 20px;
+  }
 
-.preview-panel img {
-  max-width: 100%;
-  max-height: 500px;
-  border-radius: 16px;
-  margin-top: 12px;
-}
-
-.status {
-  text-align: center;
-  margin-top: 12px;
-  min-height: 24px;
-  font-weight: 600;
-}
-
-.status.error { color: var(--error-color); }
-.status.success { color: var(--success-color); }
-
-.token-hint {
-  font-size: 0.85rem;
-  background: #fff7cc;
-  color: #5a4b00;
-  padding: 8px 12px;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  user-select: none;
-}
-
-.token-hint code {
-  background: rgba(0,0,0,0.12);
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-family: monospace;
-}
-
-@media(max-width: 900px) {
-  .main { flex-direction: column; align-items: center; }
-  .image-list-panel, .preview-panel { max-height: 400px; width: 90%; }
-}
 </style>
 </head>
 <body>
+
 <div class="container">
-  <h2>☁️ Cloud Image Notepad</h2>
+  <!-- Left panel: connection and images list -->
+  <div class="sidebar">
+    <h2>☁️ Cloud Notepad</h2>
 
-  <div class="inputs">
-    <!-- Token is now visible -->
-    <input id="token" type="text" placeholder="GitHub Personal Access Token (Visible)" />
-    <input id="username" type="text" placeholder="GitHub Username" />
-    <input id="repo" type="text" placeholder="Repository Name" />
-    <input id="folder" type="text" placeholder="Folder (default: images)" value="images" />
+    <label>GitHub Token (shown)</label>
+    <input id="token" type="text" placeholder="GitHub Token (repo access)" autocomplete="off">
+
+    <input id="username" placeholder="GitHub Username">
+    <input id="repo" placeholder="Repository Name">
+    <input id="folder" placeholder="Folder (default: images)" value="images">
+
+    <button id="connectBtn" onclick="connectGitHub()">Connect to GitHub</button>
+    <button onclick="refreshImages()" disabled id="refreshBtn">Refresh List</button>
+
+    <div class="images" id="imageList"></div>
   </div>
 
-  <div class="buttons">
-    <button id="connectBtn">Connect to GitHub</button>
-    <button id="uploadBtn" disabled>Add / Overwrite Image</button>
-    <button class="secondary" id="refreshBtn">Refresh List</button>
+  <!-- Right panel: preview and upload -->
+  <div class="preview">
+    <input type="file" id="fileInput" disabled>
+    <input type="text" id="commitMessage" placeholder="Commit message" disabled>
+    <button id="uploadBtn" onclick="addImage()" disabled>Add / Overwrite Image</button>
+    <img id="previewImage" alt="Preview">
+    <div class="status" id="status"></div>
   </div>
-
-  <div class="main">
-    <div class="image-list-panel">
-      <input id="fileInput" type="file" accept="image/*" disabled />
-      <input id="commitMessage" type="text" placeholder="Commit message" disabled />
-      <div class="image-list" id="imageList"></div>
-    </div>
-
-    <div class="preview-panel">
-      <img id="previewImage" alt="Preview" />
-    </div>
-  </div>
-
-  <div class="status" id="status"></div>
 </div>
 
 <script>
 let githubConnected = false;
 let ghToken = "";
-let selectedImageName = "";
 
-function setStatus(msg, isError = false) {
-  const s = document.getElementById("status");
-  s.textContent = msg;
-  s.className = "status";
-  if(isError) s.classList.add("error");
-  else if(msg.includes("success")||msg.includes("Connected")) s.classList.add("success");
+function setStatus(msg, isError=false) {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.style.color = isError ? "#ff6666" : "#9aa0b3";
 }
 
-function toggleInputs(state) {
-  githubConnected = state;
-  document.getElementById("fileInput").disabled = !state;
-  document.getElementById("commitMessage").disabled = !state;
-  document.getElementById("uploadBtn").disabled = !state;
-  document.getElementById("connectBtn").disabled = state;
-  document.getElementById("username").disabled = state;
-  document.getElementById("repo").disabled = state;
-  document.getElementById("folder").disabled = state;
-  document.getElementById("token").disabled = false; // keep token editable & visible
-}
-
-async function testConnection(token, username, repo) {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${username}/${repo}`, {
-      headers: { Authorization: `token ${token}`, Accept:"application/vnd.github+json" }
-    });
-    if(!res.ok) return {success:false, message:(await res.json()).message};
-    return {success:true};
-  } catch { return {success:false,message:"Network error"}; }
-}
-
-async function connectGitHub() {
+function connectGitHub() {
   const token = document.getElementById("token").value.trim();
   const username = document.getElementById("username").value.trim();
   const repo = document.getElementById("repo").value.trim();
-  if(!token || !username || !repo) { setStatus("❌ Please fill all fields", true); return; }
-  setStatus("⏳ Connecting...");
-  const result = await testConnection(token, username, repo);
-  if(!result.success) { setStatus("❌ "+result.message,true); return; }
+
+  if (!token || !username || !repo) {
+    setStatus("❌ Fill all fields!", true);
+    return;
+  }
+
   ghToken = token;
-  toggleInputs(true);
-  setStatus("✅ Connected! Ready to upload and refresh images.");
-  loadImages();
+  githubConnected = true;
+
+  document.getElementById("fileInput").disabled = false;
+  document.getElementById("commitMessage").disabled = false;
+  document.getElementById("uploadBtn").disabled = false;
+  document.getElementById("refreshBtn").disabled = false;
+  document.getElementById("connectBtn").disabled = true;
+  document.getElementById("token").disabled = true;
+  document.getElementById("username").disabled = true;
+  document.getElementById("repo").disabled = true;
+  document.getElementById("folder").disabled = true;
+
+  setStatus("✅ Connected to GitHub. You can now upload and refresh images.");
+  refreshImages();
 }
 
-async function loadImages() {
-  if(!githubConnected){ setStatus("❌ Not connected",true); return; }
+async function refreshImages() {
+  if (!githubConnected) return;
   const username = document.getElementById("username").value.trim();
   const repo = document.getElementById("repo").value.trim();
-  const folder = document.getElementById("folder").value.trim()||"images";
+  const folder = document.getElementById("folder").value.trim() || "images";
+
   setStatus("⏳ Loading images...");
+
   try {
     const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${folder}`, {
-      headers:{Authorization:`token ${ghToken}`,Accept:"application/vnd.github+json"}
+      headers: { Authorization: `token ${ghToken}` }
     });
-    if(!res.ok) { setStatus("❌ Failed to load images",true); return; }
+
+    if (!res.ok) {
+      setStatus(`❌ Failed to load: ${res.status}`, true);
+      return;
+    }
+
     const files = await res.json();
-    const images = files.filter(f=>/\.(png|jpe?g|gif|bmp|webp|svg)$/i.test(f.name));
-    const list = document.getElementById("imageList");
-    list.innerHTML="";
-    images.forEach(img=>{
-      const el=document.createElement("img");
-      el.src=img.download_url; el.alt=img.name;
-      el.addEventListener("click",()=>{document.getElementById("previewImage").src=img.download_url;selectedImageName=img.name;});
-      list.appendChild(el);
+    const listEl = document.getElementById("imageList");
+    listEl.innerHTML = "";
+
+    files.forEach(file => {
+      if (file.type === "file" && /\.(png|jpg|jpeg|gif)$/i.test(file.name)) {
+        const img = document.createElement("img");
+        img.src = file.download_url;
+        img.title = file.name;
+        img.onclick = () => document.getElementById("previewImage").src = file.download_url;
+        listEl.appendChild(img);
+      }
     });
-    if(images.length>0){ document.getElementById("previewImage").src=images[0].download_url; selectedImageName=images[0].name; }
-    setStatus(`✅ Loaded ${images.length} images`);
-  } catch { setStatus("❌ Network error",true); }
+
+    setStatus(`✅ Loaded ${files.length} images.`);
+  } catch (err) {
+    setStatus("❌ Network error while loading images.", true);
+  }
 }
 
 async function addImage() {
-  if(!githubConnected){ setStatus("❌ Not connected",true); return; }
-  const fileInput=document.getElementById("fileInput");
-  if(!fileInput.files.length){ setStatus("❌ Select a file first",true); return; }
-  const file=fileInput.files[0];
-  const path=(document.getElementById("folder").value||"images")+"/"+file.name;
-  const commitMessage=document.getElementById("commitMessage").value||"Add / update image";
-  setStatus("⏳ Uploading...");
-  const reader=new FileReader();
-  reader.onload=async ()=>{
-    const content=reader.result.split(",")[1];
-    const apiUrl=`https://api.github.com/repos/${document.getElementById("username").value}/${document.getElementById("repo").value}/contents/${path}`;
-    let sha=null;
-    try{
-      const getRes=await fetch(apiUrl,{headers:{Authorization:`token ${ghToken}`,Accept:"application/vnd.github+json"}});
-      if(getRes.ok){ sha=(await getRes.json()).sha; }
-    }catch{}
-    const body={message:commitMessage,content};
-    if(sha) body.sha=sha;
-    try{
-      const putRes=await fetch(apiUrl,{method:"PUT",headers:{Authorization:`token ${ghToken}`,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
-      if(!putRes.ok){ setStatus("❌ Commit failed",true); return; }
+  if (!githubConnected) return;
+  const fileInput = document.getElementById("fileInput");
+  if (!fileInput.files.length) {
+    setStatus("❌ Select an image first!", true);
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const commitMessage = document.getElementById("commitMessage").value.trim() || "Add / update image";
+  const username = document.getElementById("username").value.trim();
+  const repo = document.getElementById("repo").value.trim();
+  const folder = document.getElementById("folder").value.trim() || "images";
+  const path = `${folder}/${file.name}`;
+
+  setStatus("⏳ Reading file...");
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64Content = reader.result.split(",")[1];
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+
+    // Check if file exists
+    let sha = null;
+    try {
+      const getRes = await fetch(apiUrl, {
+        headers: { Authorization: `token ${ghToken}` }
+      });
+      if (getRes.ok) {
+        const data = await getRes.json();
+        sha = data.sha;
+      }
+    } catch (err) {
+      setStatus("❌ Network error checking file.", true);
+      return;
+    }
+
+    // Upload / update
+    try {
+      const putRes = await fetch(apiUrl, {
+        method: "PUT",
+        headers: { 
+          Authorization: `token ${ghToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: commitMessage, content: base64Content, ...(sha ? {sha} : {}) })
+      });
+
+      if (!putRes.ok) {
+        const errData = await putRes.json();
+        setStatus(`❌ Commit failed: ${errData.message || putRes.statusText}`, true);
+        return;
+      }
+
       setStatus("✅ Image committed successfully!");
-      fileInput.value=""; document.getElementById("commitMessage").value="";
-      loadImages();
-    }catch{ setStatus("❌ Network error",true); }
+      fileInput.value = "";
+      document.getElementById("commitMessage").value = "";
+      refreshImages();
+    } catch (err) {
+      setStatus("❌ Network error while committing.", true);
+    }
   };
+
   reader.readAsDataURL(file);
 }
-
-document.getElementById("connectBtn").addEventListener("click",connectGitHub);
-document.getElementById("refreshBtn").addEventListener("click",loadImages);
-document.getElementById("uploadBtn").addEventListener("click",addImage);
 </script>
+
 </body>
 </html>

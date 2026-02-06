@@ -1,126 +1,248 @@
-const API = "https://api.github.com";
-const GITHUB_CLIENT_ID = "YOUR_CLIENT_ID_HERE";
+let githubConnected = false;
+let ghToken = "";
 
-/* ---------- STATUS ---------- */
-function status(msg, ok = true) {
-  const el = document.getElementById("status");
-  el.textContent = msg;
-  el.style.color = ok ? "#6aff9f" : "#ff6a6a";
+function setStatus(msg, isError = false) {
+  const statusEl = document.getElementById("status");
+  statusEl.textContent = msg;
+  statusEl.style.color = isError ? "#ff6666" : "var(--muted)";
 }
 
-/* ---------- GITHUB OAUTH ---------- */
-function githubLogin() {
-  const redirect = window.location.origin + window.location.pathname;
-  const scope = "repo read:user";
-
-  window.location.href =
-    `https://github.com/login/oauth/authorize` +
-    `?client_id=${GITHUB_CLIENT_ID}` +
-    `&redirect_uri=${redirect}` +
-    `&scope=${scope}`;
+function toggleInputs(connected) {
+  document.getElementById("fileInput").disabled = !connected;
+  document.getElementById("commitMessage").disabled = !connected;
+  document.getElementById("uploadBtn").disabled = !connected;
+  document.getElementById("connectBtn").disabled = connected;
+  document.getElementById("token").disabled = connected;
+  document.getElementById("username").disabled = connected;
+  document.getElementById("repo").disabled = connected;
+  document.getElementById("folder").disabled = connected;
+  githubConnected = connected;
 }
 
-/* Detect OAuth redirect */
-(function handleOAuth() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("code")) {
-    status("GitHub sign-in successful. Enter token to continue.");
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-})();
-
-/* ---------- CONNECT ---------- */
-async function connect() {
-  if (!token.value) {
-    return status("GitHub token required", false);
-  }
-
-  await fetchUser();
-  refreshImages();
-}
-
-/* ---------- FETCH USER ---------- */
-async function fetchUser() {
+async function testConnection(token, username, repo) {
+  const apiUrl = `https://api.github.com/repos/${username}/${repo}`;
   try {
-    const res = await fetch(`${API}/user`, {
-      headers: { Authorization: `token ${token.value}` }
+    const res = await fetch(apiUrl, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github+json",
+      },
     });
-    const data = await res.json();
-    username.value = data.login;
-    status(`Authenticated as ${data.login}`);
+    if (!res.ok) {
+      const err = await res.json();
+      return { success: false, message: err.message || res.statusText };
+    }
+    return { success: true };
   } catch {
-    status("Failed to authenticate", false);
+    return { success: false, message: "Network error" };
   }
 }
 
-/* ---------- LOAD IMAGES ---------- */
-async function refreshImages() {
-  try {
-    const res = await fetch(
-      `${API}/repos/${username.value}/${repo.value}/contents/${folder.value}`,
-      { headers: { Authorization: `token ${token.value}` } }
-    );
+async function connectGitHub() {
+  const token = document.getElementById("token").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const repo = document.getElementById("repo").value.trim();
 
-    if (!res.ok) throw new Error("Cannot load image folder");
+  if (!token) {
+    setStatus("❌ Please enter your GitHub token.", true);
+    return;
+  }
+  if (!username) {
+    setStatus("❌ Please enter your GitHub username.", true);
+    return;
+  }
+  if (!repo) {
+    setStatus("❌ Please enter your repository name.", true);
+    return;
+  }
+
+  setStatus("⏳ Testing connection to GitHub...");
+
+  const result = await testConnection(token, username, repo);
+  if (!result.success) {
+    setStatus(`❌ Connection failed: ${result.message}`, true);
+    return;
+  }
+
+  ghToken = token;
+  toggleInputs(true);
+  setStatus("✅ Connected to GitHub. Ready to upload and refresh images.");
+
+  // Load images from the folder after successful connect
+  loadImages();
+}
+
+async function loadImages() {
+  if (!githubConnected) {
+    setStatus("❌ Not connected to GitHub.", true);
+    return;
+  }
+
+  const username = document.getElementById("username").value.trim();
+  const repo = document.getElementById("repo").value.trim();
+  const folder = document.getElementById("folder").value.trim() || "images";
+
+  setStatus("⏳ Loading images from GitHub...");
+
+  const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${folder}`;
+
+  try {
+    const res = await fetch(apiUrl, {
+      headers: {
+        Authorization: `token ${ghToken}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        setStatus("❌ Folder not found. Please check folder name.", true);
+      } else {
+        const err = await res.json();
+        setStatus(`❌ Failed to load images: ${err.message || res.statusText}`, true);
+      }
+      return;
+    }
 
     const files = await res.json();
+
+    // Filter only image files
+    const images = files.filter(file =>
+      file.type === "file" &&
+      /\.(png|jpe?g|gif|bmp|webp|svg)$/i.test(file.name)
+    );
+
+    // Display image list
+    const imageList = document.getElementById("imageList");
+    if (!imageList) {
+      // If imageList container does not exist in your HTML, you can create it here or skip display
+      setStatus(`✅ Loaded ${images.length} images.`);
+      return;
+    }
     imageList.innerHTML = "";
 
-    files.forEach(file => {
-      if (file.type === "file") {
-        const img = document.createElement("img");
-        img.src = file.download_url;
-        img.onclick = () => previewImage.src = img.src;
-        imageList.appendChild(img);
-      }
+    images.forEach(img => {
+      const imgEl = document.createElement("img");
+      imgEl.src = img.download_url;
+      imgEl.alt = img.name;
+      imgEl.title = img.name;
+      imgEl.style.cursor = "pointer";
+      imgEl.style.maxWidth = "100px";
+      imgEl.style.margin = "5px";
+      imgEl.onclick = () => previewImage(img.download_url, img.name);
+      imageList.appendChild(imgEl);
     });
 
-    status("Images loaded");
-  } catch (e) {
-    status(e.message, false);
+    setStatus(`✅ Loaded ${images.length} images.`);
+  } catch (err) {
+    setStatus("❌ Network error while loading images.", true);
   }
 }
 
-/* ---------- ADD / UPDATE IMAGE ---------- */
+function previewImage(url, name) {
+  const preview = document.getElementById("previewImage");
+  if (preview) {
+    preview.src = url;
+    preview.alt = name;
+  }
+}
+
 async function addImage() {
+  if (!githubConnected) {
+    setStatus("❌ Not connected to GitHub.", true);
+    return;
+  }
+
+  const username = document.getElementById("username").value.trim();
+  const repo = document.getElementById("repo").value.trim();
+  const folder = document.getElementById("folder").value.trim() || "images";
+  const commitMessage = document.getElementById("commitMessage").value.trim() || "Add / update image";
+  const fileInput = document.getElementById("fileInput");
+
+  if (!fileInput.files.length) {
+    setStatus("❌ Please select an image file first.", true);
+    return;
+  }
+
   const file = fileInput.files[0];
-  if (!file) return status("No image selected", false);
+  const path = `${folder}/${file.name}`;
+
+  setStatus("⏳ Reading file...");
 
   const reader = new FileReader();
   reader.onload = async () => {
-    const content = reader.result.split(",")[1];
-    const path = `${folder.value}/${file.name}`;
+    const base64Content = reader.result.split(",")[1];
 
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+
+    // Check if file exists to get SHA (needed for overwrite)
     let sha = null;
-    const check = await fetch(
-      `${API}/repos/${username.value}/${repo.value}/contents/${path}`,
-      { headers: { Authorization: `token ${token.value}` } }
-    );
-    if (check.ok) sha = (await check.json()).sha;
+    try {
+      const getRes = await fetch(apiUrl, {
+        headers: {
+          Authorization: `token ${ghToken}`,
+          Accept: "application/vnd.github+json",
+        },
+      });
 
-    const res = await fetch(
-      `${API}/repos/${username.value}/${repo.value}/contents/${path}`,
-      {
+      if (getRes.ok) {
+        const data = await getRes.json();
+        sha = data.sha;
+      } else if (getRes.status !== 404) {
+        setStatus(`❌ Error checking file existence: ${getRes.status}`, true);
+        return;
+      }
+    } catch (err) {
+      setStatus("❌ Network error while checking file existence.", true);
+      return;
+    }
+
+    setStatus("⏳ Uploading image to GitHub...");
+
+    const body = {
+      message: commitMessage,
+      content: base64Content,
+    };
+    if (sha) body.sha = sha;
+
+    try {
+      const putRes = await fetch(apiUrl, {
         method: "PUT",
         headers: {
-          Authorization: `token ${token.value}`,
-          "Content-Type": "application/json"
+          Authorization: `token ${ghToken}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          message: "Add or update image",
-          content,
-          sha
-        })
+        body: JSON.stringify(body),
+      });
+
+      if (!putRes.ok) {
+        const errData = await putRes.json();
+        setStatus(`❌ Commit failed: ${errData.message || putRes.statusText}`, true);
+        return;
       }
-    );
 
-    res.ok
-      ? status("Image saved successfully")
-      : status("Image upload failed", false);
+      setStatus(`✅ Image committed successfully!`);
+      // Clear file input and commit message
+      fileInput.value = "";
+      document.getElementById("commitMessage").value = "";
 
-    refreshImages();
+      // Refresh image list
+      loadImages();
+    } catch (err) {
+      setStatus("❌ Network error while committing image.", true);
+    }
   };
 
   reader.readAsDataURL(file);
 }
 
+// Optional: Show/hide token for user convenience
+function toggleTokenVisibility() {
+  const tokenInput = document.getElementById("token");
+  if (tokenInput.type === "password") {
+    tokenInput.type = "text";
+  } else {
+    tokenInput.type = "password";
+  }
+}
